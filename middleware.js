@@ -47,12 +47,17 @@ module.exports.checkCurrentYear = async (req, res, next) => {
 };
 
 module.exports.checkCurrentMonth = async (req, res, next) => {
+	 console.log("checkCurrentMonth started");
+
   const household = await Household.findOne({ users: req.user._id });
   const currentYear = await RentYear.findOne({
     year: getCurrentYear(),
     household: household._id,
   });
 
+  console.log("household:", household?._id);
+
+  console.log("current year:", getCurrentYear(), typeof getCurrentYear());
   const existingMonths = new Set(currentYear.rentMonths.map((m) => m.month));
 
   for (const month of months) {
