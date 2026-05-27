@@ -4,21 +4,6 @@ const ExpressError = require("./utils/ExpressError");
 const { getCurrentMonth, getCurrentYear } = require("./utils/getCurrentDate");
 const Household = require("./models/Household");
 
-const months = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
 module.exports.validateRentItem = (req, res, next) => {
   const { error } = rentItemSchema.validate(req.body);
   if (error) {
@@ -30,10 +15,16 @@ module.exports.validateRentItem = (req, res, next) => {
 
 module.exports.checkCurrentYear = async (req, res, next) => {
   const household = await Household.findOne({ users: req.user._id });
+
+  if (!household) {
+    return res.redirect("/household/new");
+  }
+
   const rentYear = await RentYear.findOne({
     year: getCurrentYear(),
     household: household,
   });
+
   if (!rentYear) {
     const newYear = new RentYear({
       year: getCurrentYear(),
@@ -47,18 +38,40 @@ module.exports.checkCurrentYear = async (req, res, next) => {
 };
 
 module.exports.checkCurrentMonth = async (req, res, next) => {
-	 console.log("checkCurrentMonth started");
-
   const household = await Household.findOne({ users: req.user._id });
+
+  if (!household) {
+    return res.redirect("/household/new");
+  }
+
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
   const currentYear = await RentYear.findOne({
     year: getCurrentYear(),
     household: household._id,
   });
 
-  console.log("household:", household?._id);
+  if (!currentYear) {
+    req.flash("error", "Could not find the current rent year.");
+    return res.redirect("/household/new");
+  }
 
-  console.log("current year:", getCurrentYear(), typeof getCurrentYear());
-  const existingMonths = new Set(currentYear.rentMonths.map((m) => m.month));
+  const existingMonths = new Set(
+    currentYear.rentMonths.map((rentMonth) => rentMonth.month)
+  );
 
   for (const month of months) {
     if (!existingMonths.has(month)) {
@@ -72,6 +85,8 @@ module.exports.checkCurrentMonth = async (req, res, next) => {
   }
 
   await currentYear.save();
+
+  return next();
 };
 
 module.exports.storeReturnTo = (req, res, next) => {

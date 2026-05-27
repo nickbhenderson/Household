@@ -6,7 +6,11 @@ module.exports.index = async (req, res) => {
   const user = req.user;
   const household = await Household.findOne({ users: user._id });
 
-  res.redirect(`/household/${household._id}`);
+  if (!household) {
+    return res.redirect("/household/new");
+  }
+
+  return res.redirect(`/household/${household._id}`);
 };
 
 module.exports.renderNewForm = (req, res) => {
