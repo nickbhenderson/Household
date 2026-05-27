@@ -46,9 +46,9 @@ This page is divided into three sections:
    An accordion menu lists each expense along with its details, including the date added and description.
 
 2. **Add a New Expense**  
-   Provides three input fields:  
-   - Expense name  
-   - Dollar amount  
+   Provides three input fields:
+   - Expense name
+   - Dollar amount
    - Description (text area for additional details)
 
 3. **Previous Months Summary**  
@@ -74,29 +74,34 @@ The profile route allows users to manage their personal information. It is divid
 
 ## Technologies Used
 
-**Languages:**  
-- HTML  
-- CSS  
+**Languages:**
+
+- HTML
+- CSS
 - JavaScript
 
-**Backend:**  
-- Node.js  
+**Backend:**
+
+- Node.js
 - Express.js
 
-**Database:**  
+**Database:**
+
 - MongoDB
 
-**Templating Engine:**  
+**Templating Engine:**
+
 - Embedded JavaScript (EJS)
 
-**Frameworks and Libraries:**  
-- Bootstrap  
+**Frameworks and Libraries:**
+
+- Bootstrap
 - Passport.js
 
 ---
 
 ## Future Plans
 
-- Implement a carousel for graphs to improve readability on smaller devices.  
-- Implement a carousel for navigating months on the Household page.  
+- Implement a carousel for graphs to improve readability on smaller devices.
+- Implement a carousel for navigating months on the Household page.
 - Fully implement multi-user households with invitation

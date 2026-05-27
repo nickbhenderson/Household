@@ -1,9 +1,9 @@
 .cover-container {
-	max-width: 60vw;
+  max-width: 60vw;
 }
 
 .btn-secondary,
 .btn-secondary:hover {
-	color: #333;
-	text-shadow: none;
+  color: #333;
+  text-shadow: none;
 }
