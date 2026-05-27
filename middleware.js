@@ -4,6 +4,21 @@ const ExpressError = require("./utils/ExpressError");
 const { getCurrentMonth, getCurrentYear } = require("./utils/getCurrentDate");
 const Household = require("./models/Household");
 
+const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
 module.exports.validateRentItem = (req, res, next) => {
   const { error } = rentItemSchema.validate(req.body);
   if (error) {
