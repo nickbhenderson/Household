@@ -1,133 +1,417 @@
 <% layout('layouts/boilerplate') %>
-    <div class="row">
-        <div class="col-lg-6 col-sm-10 offset-lg-0 offset-sm-1">
-            <div class="card shadow mb-3 text-white bodyCard" id="totalCard">
-                <div class="card-body">
-                    <% const currentMonth=household.rentYears.at(-1).rentMonths[month] %>
-                        <h2 class="card-title border-bottom pb-3 month">
-                            <%=currentMonth.month%>'s Living Expenses
-                        </h2>
-                        <h3 class="card-text mb-3">Monthly Total: $<%=currentMonth.rentTotal || 0 %>
-                        </h3>
+<% const currentMonth = household.rentYears.at(-1).rentMonths[month] %>
+<% const dateFormatter = new Intl.DateTimeFormat('en-US', { dateStyle: 'full' }); %>
+<%
+  const formatDateForInput = (date) => {
+    if (!date) return "";
 
-                        <div class="accordion" id="currentMonthAccordian">
-                            <% if(currentMonth.rentItems) { %>
-                                <% for(let rentItem of currentMonth.rentItems) {%>
-                                    <div class="accordion-item">
-                                        <h2 class="accordion-header">
-                                            <button class="accordion-button collapsed py-2" type="button"
-                                                data-bs-toggle="collapse" data-bs-target="#collapse<%=rentItem._id %>"
-                                                aria-expanded="true" aria-controls="collapse<%=rentItem._id %>">
-                                                <h5>
-                                                    <%=rentItem.reason%>: $<%=rentItem.cost %>
-                                                </h5>
-                                            </button>
-                                        </h2>
-                                        <div id="collapse<%=rentItem._id %>" class="accordion-collapse collapse"
-                                            data-bs-parent="#currentMonthAccordian">
-                                            <div class="accordion-body">
-                                                <p>
-                                                    <%=rentItem.date %>
-                                                </p>
-                                                <p>
-                                                    <%=rentItem.desc %>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <% } %>
-                                        <% } %>
-                        </div>
-                </div>
-            </div>
-        </div>
+    const parsedDate = new Date(date);
 
-        <div class="col-lg-6 col-sm-10 offset-lg-0 offset-sm-1">
-            <div class="card shadow mb-3 text-white bodyCard" id="inputCard">
-                <div class="card-body">
-                    <h2 class="card-title border-bottom pb-3">Add New Expense</h2>
-                </div>
-                <form action="/living-expenses" method="post" class="px-3 pb-3 validated-form" novalidate>
-                    <div class="form-floating mb-3">
-                        <input type="text" class="form-control" id="reason" aria-describedby="cost reason"
-                            placeholder="Cost Reason" name="rentItem[reason]" required>
-                        <label for="reason" class="form-label text-secondary">Cost Reason</label>
-                        <div id="reasonHelp" class="form-text text-info">Examples: Power Bill, Internet
-                            Bill, etc</div>
-                        <div class="invalid-feedback">Please Enter a Reason!</div>
-                    </div>
+    if (Number.isNaN(parsedDate.getTime())) return "";
 
-                    <div class="form-floating mb-3">
-                        <input type="number" class="form-control" id="costAmount" aria-describedby="Dollar amount"
-                            placeholder="Dollar Amount" name="rentItem[cost]" step=".01" required>
-                        <label for="costAmount" class="form-label text-secondary">Dollar Amount</label>
-                        <div class="invalid-feedback">Please Enter a Cost</div>
-                    </div>
+    const year = parsedDate.getFullYear();
+    const month = String(parsedDate.getMonth() + 1).padStart(2, "0");
+    const day = String(parsedDate.getDate()).padStart(2, "0");
 
-                    <div class="form-floating  mb-3">
-                        <input id="costDate" class="form-control" type="date" name="rentItem[date]">
-                        <label class="form-label" for="costDate">Date of Expense</label>
-                    </div>
+    return `${year}-${month}-${day}`;
+  };
+%>
 
-                    <div class="form-floating mb-3">
-                        <textarea class="form-control" id="costDescription" rows="3" name="rentItem[desc]"
-                            placeholder="Description of Expense" style="height: 7rem;" required></textarea>
-                        <label for="costDescription" class="form-label text-secondary">Description of
-                            Expense</label>
-                        <div class="invalid-feedback">Please Enter a Description!</div>
-                    </div>
-                    <div class="d-flex">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="recurring" id="checkDefault" name="recurring">
-                            <label class="form-check-label" for="checkDefault">
-                                Does this expense reoccur monthly?
-                            </label>
-                        </div>
-                        <button type="submit" class="btn btn-primary ms-auto">Submit</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+<div class="row">
+    <div class="col-lg-6 col-sm-10 offset-lg-0 offset-sm-1">
+        <div class="card shadow mb-3 text-white bodyCard" id="totalCard">
+            <div class="card-body">
+                <h2 class="card-title border-bottom pb-3 month">
+                    <%= currentMonth.month %>'s Living Expenses
+                </h2>
 
-    <div class="row">
-        <div class="col-lg-12 col-sm-10 offset-lg-0 offset-sm-1">
-            <div class="card shadow text-white mt-2  bodyCard" id="historyCard">
-                <div class="card-body ">
-                    <h2 class="card-title border-bottom pb-2 mb-3">Monthly Summaries</h2>
-                    <div class="accordion " id="accordion">
-                        <% for(let rentMonth of household.rentYears.at(-1).rentMonths.reverse()) {%>
-                            <div class="accordion-item bg-secondary-subtle">
+                <h3 class="card-text mb-3">
+                    Monthly Total: $<%= currentMonth.rentTotal || 0 %>
+                </h3>
+
+                <div class="accordion" id="currentMonthAccordian">
+                    <% if (currentMonth.rentItems) { %>
+                        <% for (let rentItem of currentMonth.rentItems) { %>
+                            <div class="accordion-item">
                                 <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed py-2" type="button"
-                                        data-bs-toggle="collapse" data-bs-target="#flush-collapse<%=rentMonth.month %>"
-                                        aria-expanded="false" aria-controls="flush-collapse<%=rentMonth.month %>">
-                                        <h3>
-                                            <%=rentMonth.month %>: $<%=rentMonth.rentTotal %>
-                                        </h3>
+                                    <button
+                                        class="accordion-button collapsed py-2"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#collapse<%= rentItem._id %>"
+                                        aria-expanded="true"
+                                        aria-controls="collapse<%= rentItem._id %>"
+                                    >
+                                        <h5>
+                                            <%= rentItem.reason %>: $<%= rentItem.cost %>
+                                        </h5>
                                     </button>
                                 </h2>
-                                <div id="flush-collapse<%=rentMonth.month %>" class="accordion-collapse collapse"
-                                    data-bs-parent="#accordion">
+
+                                <div
+                                    id="collapse<%= rentItem._id %>"
+                                    class="accordion-collapse collapse"
+                                    data-bs-parent="#currentMonthAccordian"
+                                >
                                     <div class="accordion-body">
-                                        <% for(let rentItem of rentMonth.rentItems) {%>
-                                            <% } %>
-                                                <% for(let rentItem of rentMonth.rentItems) {%>
-                                                    <h5 class="d-inline">
-                                                        <%=rentItem.reason %>: $<%=rentItem.cost %>
-                                                    </h5>
-                                                    <br>
-                                                    <p class="rentDesc">
-                                                        <%=rentItem.desc %>
-                                                    </p>
-                                                    <% } %>
+                                        <div id="expense-display-<%= rentItem._id %>">
+                                            <p>
+                                                <%= rentItem.date %>
+                                            </p>
+
+                                            <p>
+                                                <%= rentItem.desc %>
+                                            </p>
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-secondary"
+                                                data-edit-expense="<%= rentItem._id %>"
+                                            >
+                                                Edit
+                                            </button>
+
+                                            <form
+                                                action="/living-expenses/<%= rentItem._id %>?_method=DELETE"
+                                                method="POST"
+                                                class="d-inline"
+                                                data-confirm-delete
+                                            >
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-sm btn-danger"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </div>
+
+                                        <form
+                                            id="expense-edit-<%= rentItem._id %>"
+                                            action="/living-expenses/<%= rentItem._id %>?_method=PUT"
+                                            method="POST"
+                                            class="d-none"
+                                            data-edit-form
+                                            data-expense-id="<%= rentItem._id %>"
+                                            data-original-reason="<%= rentItem.reason %>"
+                                            data-original-cost="<%= Number(rentItem.cost) %>"
+                                            data-original-date="<%= formatDateForInput(rentItem.date) %>"
+                                            data-original-desc="<%= rentItem.desc %>"
+                                        >
+                                            <div class="mb-2">
+                                                <label for="reason-<%= rentItem._id %>" class="form-label text-secondary">
+                                                    Cost Reason
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    id="reason-<%= rentItem._id %>"
+                                                    name="rentItem[reason]"
+                                                    value="<%= rentItem.reason %>"
+                                                    class="form-control form-control-sm"
+                                                    required
+                                                >
+                                            </div>
+
+                                            <div class="mb-2">
+                                                <label for="cost-<%= rentItem._id %>" class="form-label text-secondary">
+                                                    Dollar Amount
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    id="cost-<%= rentItem._id %>"
+                                                    name="rentItem[cost]"
+                                                    value="<%= rentItem.cost %>"
+                                                    class="form-control form-control-sm"
+                                                    min="0"
+                                                    step="0.01"
+                                                    required
+                                                >
+                                            </div>
+
+                                            <div class="mb-2">
+                                                <label for="date-<%= rentItem._id %>" class="form-label text-secondary">
+                                                    Date of Expense
+                                                </label>
+                                                <input
+                                                    type="date"
+                                                    id="date-<%= rentItem._id %>"
+                                                    name="rentItem[date]"
+                                                    class="form-control form-control-sm"
+                                                    value="<%= formatDateForInput(rentItem.date) %>"
+                                                >
+                                            </div>
+
+                                            <div class="mb-2">
+                                                <label for="desc-<%= rentItem._id %>" class="form-label text-secondary">
+                                                    Description of Expense
+                                                </label>
+                                                <textarea
+                                                    id="desc-<%= rentItem._id %>"
+                                                    name="rentItem[desc]"
+                                                    class="form-control form-control-sm"
+                                                    required
+                                                ><%= rentItem.desc %></textarea>
+                                            </div>
+
+                                            <button type="submit" class="btn btn-sm btn-primary">
+                                                Save
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-secondary"
+                                                data-cancel-expense="<%= rentItem._id %>"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
-                            <% } %>
-                    </div>
+                        <% } %>
+                    <% } %>
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="col-lg-6 col-sm-10 offset-lg-0 offset-sm-1">
+        <div class="card shadow mb-3 text-white bodyCard" id="inputCard">
+            <div class="card-body">
+                <h2 class="card-title border-bottom pb-3">Add New Expense</h2>
+            </div>
+
+            <form action="/living-expenses" method="post" class="px-3 pb-3 validated-form" novalidate>
+                <div class="form-floating mb-3">
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="reason"
+                        aria-describedby="cost reason"
+                        placeholder="Cost Reason"
+                        name="rentItem[reason]"
+                        required
+                    >
+                    <label for="reason" class="form-label text-secondary">Cost Reason</label>
+                    <div id="reasonHelp" class="form-text text-info">
+                        Examples: Power Bill, Internet Bill, etc
+                    </div>
+                    <div class="invalid-feedback">Please Enter a Reason!</div>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input
+                        type="number"
+                        class="form-control"
+                        id="costAmount"
+                        aria-describedby="Dollar amount"
+                        placeholder="Dollar Amount"
+                        name="rentItem[cost]"
+                        step=".01"
+                        required
+                    >
+                    <label for="costAmount" class="form-label text-secondary">Dollar Amount</label>
+                    <div class="invalid-feedback">Please Enter a Cost</div>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input
+                        id="costDate"
+                        class="form-control"
+                        type="date"
+                        name="rentItem[date]"
+                    >
+                    <label class="form-label" for="costDate">Date of Expense</label>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <textarea
+                        class="form-control"
+                        id="costDescription"
+                        rows="3"
+                        name="rentItem[desc]"
+                        placeholder="Description of Expense"
+                        style="height: 7rem;"
+                        required
+                    ></textarea>
+                    <label for="costDescription" class="form-label text-secondary">
+                        Description of Expense
+                    </label>
+                    <div class="invalid-feedback">Please Enter a Description!</div>
+                </div>
+
+                <div class="d-flex">
+                    <div class="form-check">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            value="recurring"
+                            id="checkDefault"
+                            name="recurring"
+                        >
+                        <label class="form-check-label" for="checkDefault">
+                            Does this expense reoccur monthly?
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary ms-auto">
+                        Submit
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12 col-sm-10 offset-lg-0 offset-sm-1">
+        <div class="card shadow text-white mt-2 bodyCard" id="historyCard">
+            <div class="card-body">
+                <h2 class="card-title border-bottom pb-2 mb-3">Monthly Summaries</h2>
+
+                <div class="accordion" id="accordion">
+                    <% for (let rentMonth of [...household.rentYears.at(-1).rentMonths].reverse()) { %>
+                        <div class="accordion-item bg-secondary-subtle">
+                            <h2 class="accordion-header">
+                                <button
+                                    class="accordion-button collapsed py-2"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#flush-collapse<%= rentMonth.month %>"
+                                    aria-expanded="false"
+                                    aria-controls="flush-collapse<%= rentMonth.month %>"
+                                >
+                                    <h3>
+                                        <%= rentMonth.month %>: $<%= rentMonth.rentTotal %>
+                                    </h3>
+                                </button>
+                            </h2>
+
+                            <div
+                                id="flush-collapse<%= rentMonth.month %>"
+                                class="accordion-collapse collapse"
+                                data-bs-parent="#accordion"
+                            >
+                                <div class="accordion-body">
+                                    <% for (let rentItem of rentMonth.rentItems) { %>
+                                        <div class="mb-3">
+                                            <div id="expense-display-summary-<%= rentItem._id %>">
+                                                <div class="d-flex justify-content-between mb-2 border-bottom border-dark">
+                                                    <h5 class="d-inline">
+                                                        <%= rentItem.reason %>: $<%= rentItem.cost %>
+                                                    </h5>
+
+                                                    <time class="d-inline">
+                                                        <%= dateFormatter.format(new Date(rentItem.date)) %>
+                                                    </time>
+                                                </div>
+
+                                                <div class="d-flex justify-content-between">
+                                                    <p class="rentDesc">
+                                                        <%= rentItem.desc %>
+                                                    </p>
+
+                                                    <div class="gap-2">
+                                                        <button
+                                                            type="button"
+                                                            class="btn btn-sm btn-secondary"
+                                                            data-edit-summary-expense="<%= rentItem._id %>"
+                                                        >
+                                                            Edit
+                                                        </button>
+
+                                                        <form
+                                                            action="/living-expenses/<%= rentItem._id %>?_method=DELETE"
+                                                            method="POST"
+                                                            class="d-inline"
+                                                            data-confirm-delete
+                                                        >
+                                                            <button
+                                                                type="submit"
+                                                                class="btn btn-sm btn-danger"
+                                                            >
+                                                                Delete
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <form
+                                                id="expense-edit-summary-<%= rentItem._id %>"
+                                                action="/living-expenses/<%= rentItem._id %>?_method=PUT"
+                                                method="POST"
+                                                class="d-none"
+                                                data-edit-form
+                                                data-expense-id="<%= rentItem._id %>"
+                                                data-original-reason="<%= rentItem.reason %>"
+                                                data-original-cost="<%= Number(rentItem.cost) %>"
+                                                data-original-date="<%= formatDateForInput(rentItem.date) %>"
+                                                data-original-desc="<%= rentItem.desc %>"
+                                            >
+                                                <div class="d-flex justify-content-between mb-2 border-bottom border-dark gap-2">
+                                                    <input
+                                                        type="text"
+                                                        id="summary-reason-<%= rentItem._id %>"
+                                                        name="rentItem[reason]"
+                                                        value="<%= rentItem.reason %>"
+                                                        class="form-control form-control-sm"
+                                                        required
+                                                    >
+
+                                                    <input
+                                                        type="number"
+                                                        id="summary-cost-<%= rentItem._id %>"
+                                                        name="rentItem[cost]"
+                                                        value="<%= rentItem.cost %>"
+                                                        class="form-control form-control-sm"
+                                                        min="0"
+                                                        step="0.01"
+                                                        required
+                                                    >
+
+                                                    <input
+                                                        type="date"
+                                                        id="summary-date-<%= rentItem._id %>"
+                                                        name="rentItem[date]"
+                                                        class="form-control form-control-sm"
+                                                        value="<%= formatDateForInput(rentItem.date) %>"
+                                                    >
+                                                </div>
+
+                                                <div class="d-flex justify-content-between gap-2">
+                                                    <textarea
+                                                        id="summary-desc-<%= rentItem._id %>"
+                                                        name="rentItem[desc]"
+                                                        class="form-control form-control-sm rentDesc"
+                                                        required
+                                                    ><%= rentItem.desc %></textarea>
+
+                                                    <div class="d-flex gap-2 align-items-start">
+                                                        <button type="submit" class="btn btn-sm btn-primary">
+                                                            Save
+                                                        </button>
+
+                                                        <button
+                                                            type="button"
+                                                            class="btn btn-sm btn-secondary"
+                                                            data-cancel-summary-expense="<%= rentItem._id %>"
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/living_expenses.js"></script>

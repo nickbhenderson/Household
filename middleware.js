@@ -22,17 +22,19 @@ module.exports.checkCurrentYear = async (req, res, next) => {
 
   const rentYear = await RentYear.findOne({
     year: getCurrentYear(),
-    household: household,
+    household: household._id,
   });
 
   if (!rentYear) {
     const newYear = new RentYear({
       year: getCurrentYear(),
-      household,
+      household: household._id,
     });
-    household.rentYears.push(newYear);
-    household.save();
-    newYear.save();
+
+    await newYear.save();
+
+    household.rentYears.push(newYear._id);
+    await household.save();
   }
   return next();
 };
@@ -70,7 +72,7 @@ module.exports.checkCurrentMonth = async (req, res, next) => {
   }
 
   const existingMonths = new Set(
-    currentYear.rentMonths.map((rentMonth) => rentMonth.month)
+    currentYear.rentMonths.map((rentMonth) => rentMonth.month),
   );
 
   for (const month of months) {

@@ -21,9 +21,9 @@ router
   .route("/:id")
   .get(
     isLoggedIn,
+    isHouseholdUser,
     checkCurrentYear,
     checkCurrentMonth,
-    isHouseholdUser,
     catchAsync(household.showHousehold),
   )
   .put(isLoggedIn, isHouseholdUser, catchAsync(household.updateHousehold));
@@ -32,9 +32,9 @@ router
   .route("/:id/edit")
   .get(
     isLoggedIn,
+    isHouseholdUser,
     checkCurrentYear,
     checkCurrentMonth,
-    isHouseholdUser,
     catchAsync(household.renderEditForm),
   );
 

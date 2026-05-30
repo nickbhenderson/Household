@@ -60,9 +60,9 @@ const store = MongoStore.create({
   mongoUrl: dbUrl,
   dbName: "Household",
   touchAfter: 24 * 60 * 60,
-  crypto: {
-    secret,
-  },
+  //   crypto: {
+  //     secret,
+  //   },
 });
 
 store.on("error", function (e) {
@@ -102,7 +102,6 @@ const styleSrcUrls = [
   "https://api.tiles.mapbox.com/",
   "https://fonts.googleapis.com/",
   "https://use.fontawesome.com/",
-  ,
   "https://cdn.jsdelivr.net",
 ];
 const connectSrcUrls = [

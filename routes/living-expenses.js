@@ -25,4 +25,18 @@ router
     catchAsync(livingExpenses.createLivingExpense),
   );
 
+router
+  .route("/:rentItemId")
+  .put(
+    isLoggedIn,
+    checkHousehold,
+    validateRentItem,
+    catchAsync(livingExpenses.updateLivingExpense),
+  )
+  .delete(
+    isLoggedIn,
+    checkHousehold,
+    catchAsync(livingExpenses.deleteLivingExpense),
+  );
+
 module.exports = router;

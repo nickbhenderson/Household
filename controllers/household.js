@@ -64,15 +64,26 @@ module.exports.renderEditForm = async (req, res, next) => {
 module.exports.updateHousehold = async (req, res, next) => {
   const { id } = req.params;
   const household = await Household.findById(id);
+
+  if (!household) {
+    req.flash("error", "Household not found.");
+    return res.redirect("/household");
+  }
+
   if (req.body.address) {
     household.address = req.body.address;
     await household.save();
     req.flash("success", "Successfully updated your Household's address!");
     return res.redirect(`/household/${id}`);
-  } else if (req.body.household.name) {
+  }
+
+  if (req.body.household && req.body.household.name) {
     household.name = req.body.household.name;
     await household.save();
     req.flash("success", "Successfully updated your Household's name!");
     return res.redirect(`/household/${id}`);
   }
+
+  req.flash("error", "No household update was submitted.");
+  return res.redirect(`/household/${id}/edit`);
 };

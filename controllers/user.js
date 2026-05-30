@@ -2,7 +2,7 @@ const User = require("../models/user");
 const Household = require("../models/Household");
 
 module.exports.renderRegister = (req, res, next) => {
-  res.render("user/register", { page_name: "Register" });
+  return res.render("user/register", { page_name: "Register" });
 };
 
 module.exports.createUser = async (req, res, next) => {
@@ -18,7 +18,7 @@ module.exports.createUser = async (req, res, next) => {
     req.login(registeredUser, (err) => {
       if (err) return next(err);
       req.flash("success", "Welcome to Household!");
-      res.redirect("/household/new");
+      return res.redirect("/household/new");
     });
   } catch (e) {
     req.flash("error", e.message);
@@ -27,21 +27,21 @@ module.exports.createUser = async (req, res, next) => {
 };
 
 module.exports.renderLogin = (req, res, next) => {
-  res.render("user/login", { page_name: "Login" });
+  return res.render("user/login", { page_name: "Login" });
 };
 
 module.exports.login = async (req, res, next) => {
   req.flash("success", `Welcome back, ${req.user.username}!`);
   const redirectUrl = res.locals.returnTo || "/";
 
-  res.redirect(redirectUrl);
+  return res.redirect(redirectUrl);
 };
 
 module.exports.renderProfile = async (req, res, next) => {
   const user = req.user;
   const household = await Household.findOne({ users: user._id });
 
-  res.render("user/profile", { user, household, page_name: "Profile" });
+  return res.render("user/profile", { user, household, page_name: "Profile" });
 };
 
 module.exports.updateProfile = async (req, res, next) => {
@@ -65,41 +65,49 @@ module.exports.updateProfile = async (req, res, next) => {
     "success",
     `You've successfully updated your ${displayname ? "real name " : ""}${email ? "email " : ""}${salary ? "salary " : ""}information!`,
   );
-  res.redirect("/profile");
+  return res.redirect("/profile");
 };
 
 module.exports.updatePassword = async (req, res, next) => {
   const currentPassword = req.body.currentPassword;
   const verifyCurrentPassword = req.body.verifyPassword;
   const newPassword = req.body.password;
+
   if (currentPassword !== verifyCurrentPassword) {
     req.flash("error", "Passwords must match!");
     return res.redirect("/profile");
-  } else if (newPassword === currentPassword) {
+  }
+
+  if (newPassword === currentPassword) {
     req.flash(
       "error",
       "New password must be different from your old password!",
     );
     return res.redirect("/profile");
-  } else {
-    User.findByUsername(req.user.username, (err, user) => {
-      if (err) {
-        req.flash("error", err);
-        return res.redirect("/profile");
-      } else {
-        user.changePassword(oldPassword, newPassword, (err) => {
-          if (err) {
-            console.log(err);
-            req.flash("error", err);
-            return res.redirect("/profile");
-          } else {
-            req.flash("success", "Password changed successfully.");
-            return res.redirect("/profile");
-          }
-        });
-      }
-    });
   }
+
+  User.findByUsername(req.user.username, (err, user) => {
+    if (err) {
+      req.flash("error", err.message || "Unable to find user.");
+      return res.redirect("/profile");
+    }
+
+    if (!user) {
+      req.flash("error", "User not found.");
+      return res.redirect("/profile");
+    }
+
+    return user.changePassword(currentPassword, newPassword, (err) => {
+      if (err) {
+        console.log(err);
+        req.flash("error", err.message || "Unable to change password.");
+        return res.redirect("/profile");
+      }
+
+      req.flash("success", "Password changed successfully.");
+      return res.redirect("/profile");
+    });
+  });
 };
 
 module.exports.logout = (req, res, next) => {
@@ -109,6 +117,6 @@ module.exports.logout = (req, res, next) => {
     }
 
     req.flash("success", "Goodbye!");
-    res.redirect("/");
+    return res.redirect("/");
   });
 };
