@@ -15,7 +15,14 @@ router
   .get(isLoggedIn, checkHousehold, catchAsync(household.index))
   .post(isLoggedIn, catchAsync(household.createHousehold));
 
-router.route("/new").get(isLoggedIn, household.renderNewForm);
+router
+  .route("/new")
+  .get(isLoggedIn, household.renderNewForm);
+
+router
+  .route("/join")
+  .get(isLoggedIn, household.renderJoinForm)
+  .post(isLoggedIn, catchAsync(household.joinHousehold));
 
 router
   .route("/:id")

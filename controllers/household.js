@@ -1,6 +1,7 @@
 const Household = require("../models/Household");
 const RentYear = require("../models/RentYear");
 const User = require("../models/user");
+const { nanoid } = require("nanoid");
 
 module.exports.index = async (req, res) => {
   const user = req.user;
@@ -22,7 +23,7 @@ module.exports.renderNewForm = (req, res) => {
 module.exports.createHousehold = async (req, res) => {
   const user = await User.findOne(req.user);
   if (req.body.household.name) {
-    const household = new Household({ name: req.body.household.name });
+    const household = new Household({ name: req.body.household.name, inviteCode: nanoid(10), inviteCodeCreatedAt: new Date() });
     household.address = req.body.address;
     household.users.push(user._id);
     await household.save();
@@ -86,4 +87,43 @@ module.exports.updateHousehold = async (req, res, next) => {
 
   req.flash("error", "No household update was submitted.");
   return res.redirect(`/household/${id}/edit`);
+};
+
+module.exports.renderJoinForm = (req, res) => {
+  return res.render("household/join", {
+    page_name: "Join Household",
+  });
+};
+
+module.exports.joinHousehold = async (req, res) => {
+  const user = req.user;
+  const { inviteCode } = req.body;
+  const fullUser = await User.findById(req.user._id);
+
+  if (fullUser.household) {
+    req.flash("error", "You are already part of a household.");
+    return res.redirect(`/household/${fullUser.household}`);
+  }
+  const household = await Household.findOne({ inviteCode });
+
+  if (!household) {
+    req.flash("error", "Invalid invite code.");
+    return res.redirect("/household/join");
+  }
+  
+  const inHousehold = household.users.some((userId) => userId.equals(fullUser._id));
+
+  if (inHousehold) {
+    req.flash("error", "You are already part of this household.");
+    return res.redirect(`/household/${household._id}`);
+  }
+
+  household.users.push(fullUser._id);
+  await household.save();
+
+  fullUser.household = household._id;
+  await fullUser.save();
+
+  req.flash("success", `Successfully joined ${household.name}!`);
+  return res.redirect(`/household/${household._id}`);
 };

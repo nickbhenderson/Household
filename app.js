@@ -7,7 +7,8 @@ const path = require("path");
 const ejsMate = require("ejs-mate");
 const session = require("express-session");
 const flash = require("connect-flash");
-const MongoStore = require("connect-mongo");
+const MongoStoreImport = require("connect-mongo");
+const MongoStore = MongoStoreImport.default || MongoStoreImport;
 const ExpressError = require("./utils/ExpressError");
 const methodOverride = require("method-override");
 const passport = require("passport");
@@ -109,6 +110,7 @@ const connectSrcUrls = [
   "https://a.tiles.mapbox.com/",
   "https://b.tiles.mapbox.com/",
   "https://events.mapbox.com/",
+  "https://cdn.jsdelivr.net",
 ];
 const fontSrcUrls = [];
 app.use(
@@ -165,7 +167,7 @@ app.get("/", (req, res) => {
 
 // Error handling
 
-app.all("*", (req, res, next) => {
+app.use((req, res, next) => {
   next(new ExpressError("Page Not Found", 404));
 });
 

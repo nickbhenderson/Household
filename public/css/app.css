@@ -49,7 +49,7 @@ body {
 #navbar,
 #footer,
 #register,
-#newHousehold {
+.newHousehold {
   background-color: rgba(33, 37, 41, 0.7);
 }
 
@@ -58,7 +58,7 @@ body {
   transition: opacity 1s;
 }
 
-#newHousehold {
+.newHousehold {
   opacity: 0;
   transition: all 1s;
 }

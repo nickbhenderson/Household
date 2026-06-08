@@ -221,3 +221,34 @@ module.exports.deleteLivingExpense = async (req, res) => {
   req.flash("error", "Expense not found.");
   return res.redirect("/living-expenses");
 };
+
+module.exports.renderJoinForm = (req, res) => {
+  return res.render("household/join", {
+    page_name: "Join Household",
+  });
+};
+
+module.exports.joinHousehold = async (req, res) => {
+  const user = req.user;
+  const { inviteCode } = req.body;
+
+  const existingHousehold = await Household.findOne({ users: user._id });
+
+  if (existingHousehold) {
+    req.flash("error", "You are already part of a household.");
+    return res.redirect(`/household/${existingHousehold._id}`);
+  }
+
+  const household = await Household.findOne({ inviteCode });
+
+  if (!household) {
+    req.flash("error", "Invalid invite code.");
+    return res.redirect("/household/join");
+  }
+
+  household.users.push(user._id);
+  await household.save();
+
+  req.flash("success", `You joined ${household.name}.`);
+  return res.redirect(`/household/${household._id}`);
+};

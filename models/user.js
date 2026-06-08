@@ -1,7 +1,9 @@
 const { types } = require("joi");
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const passportLocalMongoose = require("passport-local-mongoose");
+const passportLocalMongooseImport = require("passport-local-mongoose");
+const passportLocalMongoose =
+  passportLocalMongooseImport.default || passportLocalMongooseImport;
 
 const ImageSchema = new Schema({
   url: String,
@@ -26,6 +28,7 @@ const UserSchema = new Schema({
   household: {
     type: Schema.Types.ObjectId,
     ref: "Household",
+    default: null,
   },
   salary: {
     type: Number,

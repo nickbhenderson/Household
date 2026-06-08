@@ -32,6 +32,7 @@ const household = new Schema({
     {
       type: Schema.Types.ObjectId,
       ref: "User",
+      index: true,
     },
   ],
   address: addressSchema,
@@ -42,6 +43,15 @@ const household = new Schema({
       ref: "RentYear",
     },
   ],
+  inviteCode: {
+    type: String,
+    unique: true,
+    sparse: true,
+  },
+  inviteCodeCreatedAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 module.exports = mongoose.model("Household", household);

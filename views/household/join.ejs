@@ -1,0 +1,22 @@
+<% layout('layouts/boilerplate') %>
+
+<div class="row text-white">
+  <div class="col-md-6 offset-md-3">
+    <h1>Join a Household</h1>
+
+    <form action="/household/join" method="POST">
+      <div class="mb-3">
+        <label for="inviteCode" class="form-label">Invite Code</label>
+        <input
+          type="text"
+          class="form-control"
+          id="inviteCode"
+          name="inviteCode"
+          required
+        >
+      </div>
+
+      <button class="btn btn-primary">Join Household</button>
+    </form>
+  </div>
+</div>

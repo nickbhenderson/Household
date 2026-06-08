@@ -4,7 +4,7 @@
             <h1 class="display-1" id="header1">Hello, <%=user.username%>. </h1>
             <h2 class="display-2" id="header2">Let's get to work making your new Household!</h2>
         </div>
-        <div class="card col-8 offset-2" id="newHousehold">
+        <div class="card col-8 offset-2 newHousehold mb-3">
             <div class="card-body text-white">
                 <form action="/household" method="post" class="row g-3 validated-form" novalidate>
                     <h3 class="card-item text-center">What do you want to call your Household? You can change this later.</h3>                    
@@ -47,6 +47,13 @@
                 </form>
             </div>
         </div>
+        <div class="card col-8 offset-2 newHousehold">
+            <div class="card-body text-white text-center">
+                        <h3 class="card-item card-text text-white mb-3">Joining a Household? No problem!</h3>
+                        <a href="/household/join" class="btn btn-primary">Join Household</a>
+                </div>
+            </div>
+
     </section>
 
     <script src="/js/household_new.js"></script>

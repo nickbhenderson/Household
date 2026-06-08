@@ -1,5 +1,12 @@
 # Household
 
+## Demo User Credentials
+
+#### Username
+   demo
+#### Password
+   DemoPassword123!
+
 #### Video Demo: [Watch on YouTube](https://www.youtube.com/watch?v=SMhkas73A9k&feature=youtu.be)
 
 ## Description
