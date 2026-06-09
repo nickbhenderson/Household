@@ -1,7 +1,7 @@
 <% layout('layouts/boilerplate') %>
     <section class="row d-flex">
         <div class="text-center text-white" id="headers">
-            <h1 class="display-1" id="header1">Hello, <%=user.username%>. </h1>
+            <h1 class="display-1" id="header1">Hello, <%=user.displayname%>. </h1>
             <h2 class="display-2" id="header2">Let's get to work making your new Household!</h2>
         </div>
         <div class="card col-8 offset-2 newHousehold mb-3">
@@ -33,6 +33,9 @@
                         <label for="inputState" class="form-label">State</label>
                         <select id="inputState" class="form-select" name="address[state]" required>
                             <option value="">Choose Your State</option>
+                            <% for (let state of usStates) { %>
+                                <option value="<%= state %>"><%= state %></option>
+                            <% } %>
                         </select>
                         <div class="invalid-feedback">Please Select a State!</div>
                     </div>
@@ -57,4 +60,3 @@
     </section>
 
     <script src="/js/household_new.js"></script>
-    <script src="/js/states.js"></script>

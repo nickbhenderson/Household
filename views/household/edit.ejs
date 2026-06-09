@@ -38,7 +38,7 @@
                             <%= household.address.street2 || "" %>
                         </p>
                         <input type="text" class="form-control d-none" id="inputAddress2"
-                            value="<%= household.address.street2 || "" %>" placeholder="Apartment, studio, or floor"
+                            value="<%= household.address.street2 || "" %>" placeholder="Apartment, studio, or floor (Optional)"
                             name="address[street2]">
                     </div>
                     <div class="col-md-6">
@@ -55,9 +55,17 @@
                         <p class="editAddressHeader">
                             <%= household.address.state || "" %>
                         </p>
-                        <select id="inputState" class="form-select d-none" name="address[state]">
-                            <option value="">Choose Your State</option>
-                        </select>
+<select id="inputState" class="form-select d-none" name="address[state]">
+  <option value="">Choose Your State</option>
+  <% for (let state of usStates) { %>
+    <option
+      value="<%= state %>"
+      <%= household.address.state === state ? "selected" : "" %>
+    >
+      <%= state %>
+    </option>
+  <% } %>
+</select>
                         <div class="invalid-feedback">Please Select a State!</div>
                     </div>
 
@@ -82,4 +90,3 @@
     </section>
 
     <script src="/js/household_edit.js"></script>
-    <script src="/js/states.js"></script>

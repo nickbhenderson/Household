@@ -55,8 +55,8 @@
                                 >
                                     <div class="accordion-body">
                                         <div id="expense-display-<%= rentItem._id %>">
-                                            <p>
-                                                <%= rentItem.date %>
+                                            <p class="border-bottom border-dark pb-1 mb-1">
+                                                <%= dateFormatter.format(new Date(rentItem.date)) %>
                                             </p>
 
                                             <p>

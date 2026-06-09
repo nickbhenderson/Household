@@ -61,3 +61,5 @@ const usStates = [
 ];
 
 JSON.stringify(usStates, null, "\t");
+
+module.exports = usStates;

@@ -1,6 +1,7 @@
 const Household = require("../models/Household");
 const RentYear = require("../models/RentYear");
 const User = require("../models/user");
+const states = require("../utils/states");
 const { nanoid } = require("nanoid");
 
 module.exports.index = async (req, res) => {
@@ -16,14 +17,19 @@ module.exports.index = async (req, res) => {
 
 module.exports.renderNewForm = (req, res) => {
   const user = req.user;
+const usStates = states.map((state) => state.abbreviation);
 
-  res.render("household/new", { page_name: "New Household", user });
+  res.render("household/new", { page_name: "New Household", user, usStates });
 };
 
 module.exports.createHousehold = async (req, res) => {
   const user = await User.findOne(req.user);
   if (req.body.household.name) {
-    const household = new Household({ name: req.body.household.name, inviteCode: nanoid(10), inviteCodeCreatedAt: new Date() });
+    const household = new Household({
+      name: req.body.household.name,
+      inviteCode: nanoid(10),
+      inviteCodeCreatedAt: new Date(),
+    });
     household.address = req.body.address;
     household.users.push(user._id);
     await household.save();
@@ -58,8 +64,14 @@ module.exports.showHousehold = async (req, res) => {
 
 module.exports.renderEditForm = async (req, res, next) => {
   const { id } = req.params;
+  const usStates = states.map((state) => state.abbreviation);
   const household = await Household.findById(id);
-  res.render("household/edit", { household, page_name: "Edit Household" });
+
+  res.render("household/edit", {
+    household,
+    usStates,
+    page_name: "Edit Household",
+  });
 };
 
 module.exports.updateHousehold = async (req, res, next) => {
@@ -69,6 +81,22 @@ module.exports.updateHousehold = async (req, res, next) => {
   if (!household) {
     req.flash("error", "Household not found.");
     return res.redirect("/household");
+  }
+
+  if (req.body.household && req.body.household.name === household.name) {
+    req.flash("error", "The new name must be different from the current name.");
+    return res.redirect(`/household/${id}/edit`);
+  }
+
+  if (
+    req.body.address &&
+    JSON.stringify(req.body.address) === JSON.stringify(household.address)
+  ) {
+    req.flash(
+      "error",
+      "The new address must be different from the current address.",
+    );
+    return res.redirect(`/household/${id}/edit`);
   }
 
   if (req.body.address) {
@@ -110,8 +138,10 @@ module.exports.joinHousehold = async (req, res) => {
     req.flash("error", "Invalid invite code.");
     return res.redirect("/household/join");
   }
-  
-  const inHousehold = household.users.some((userId) => userId.equals(fullUser._id));
+
+  const inHousehold = household.users.some((userId) =>
+    userId.equals(fullUser._id),
+  );
 
   if (inHousehold) {
     req.flash("error", "You are already part of this household.");
